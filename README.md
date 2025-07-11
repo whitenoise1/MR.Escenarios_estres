@@ -11,6 +11,7 @@ Se presenta un proceso de construcción de escenarios de estrés siguiendo princ
 * EscenariosEstres_empirico.RData: Contiene los resultados completos del proceso.
 
 # Librerias requeridas
+```{r}
 require(quantmod)
 require(PerformanceAnalytics)
 require(roll)
@@ -26,3 +27,4 @@ require(PearsonDS)
 require(fitdistrplus)
 require(kableExtra)
 require(cubature)
+```
