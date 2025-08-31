@@ -612,11 +612,11 @@ baselIII.12m.stress <- gobix["2021-12-01/2022"]
 
 # resumen autocorrelacion
 autocorrelation.table <- cbind(table.Autocorrelation(gobix[,'daily.vol',drop=FALSE]), 
-                               table.Autocorrelation(regime.lower[,'daily.vol',drop=FALSE]),
+                               table.Autocorrelation(regime.higher[,'daily.vol',drop=FALSE]),
                                table.Autocorrelation(regime.flat[,'daily.vol',drop=FALSE]),
-                               table.Autocorrelation(regime.higher[,'daily.vol',drop=FALSE]))
+                               table.Autocorrelation(regime.lower[,'daily.vol',drop=FALSE]))
 
-  colnames(autocorrelation.table) <- c('todos', 'Ri=2', 'Ri=3', 'Ri=1')
+colnames(autocorrelation.table) <- c("todos","R(i=1)","R(i=2)","R(i=3)")
 
 # estadisticas sumarizadas por regimen
 unconditional.summary.stats <- stat.desc(gobix[,'daily.vol',drop=FALSE], basic=TRUE, desc=TRUE, norm=TRUE, p=0.95)
@@ -696,6 +696,7 @@ oos.end <- which(index(gobix.completo) == "2024-12-30")
 # manage exclusions. 
 censored.period <- paste0("2022-11-15/2023-03-01")
 censored.dates <- index(gobix.completo[censored.period,'daily.vol'])
+oos_sim.dates <- index(ExcludeDates(gobix.oos[,'daily.vol'], exclude = censored.dates))
 
 # test
 # ExcludeDates(baselIII.12m.stress[date.limit,'daily.vol'], exclude = censored.dates)
@@ -780,6 +781,8 @@ variance.df <- data.frame(lower_variance.df,
 colnames(variance.df) <- c("lower","sin_cambios","higher","BIII.stress")
 
 variance.df <- as.data.frame(apply(variance.df, MARGIN = 2, FUN = function(x){ sqrt(x)*sqrt(250) }))
+  variance.df <- variance.df[-1,]
+  variance.df$date <- oos_sim.dates
 
 # EVOLUCION DE SKEW
 stress_skew.df <- do.call(rbind,stress_skew)
@@ -792,7 +795,9 @@ skew.df <- data.frame(lower_skew.df,
                       highers_skew.df, 
                       stress_skew.df)
 
-colnames(skew.df) <- c("lower","sin_cambios","higher","BIII.stress")
+  colnames(skew.df) <- c("lower","sin_cambios","higher","BIII.stress")
+  skew.df <- skew.df[-1,]
+  skew.df$date <- oos_sim.dates
 
 # EVOLUCION DE KURT
 stress_kurt.df <- do.call(rbind,stress_kurt)
@@ -805,7 +810,9 @@ kurt.df <- data.frame(lower_kurt.df,
                       highers_kurt.df, 
                       stress_kurt.df)
 
-colnames(kurt.df) <- c("lower","sin_cambios","higher","BIII.stress")
+  colnames(kurt.df) <- c("lower","sin_cambios","higher","BIII.stress")
+  kurt.df <- kurt.df[-1,]
+  kurt.df$date <- oos_sim.dates
 
 # Estimacion Pearson IV
 a <- round(ajustar_pearson_iv(na.omit(gobix[,'daily.vol',drop=FALSE])),4)
@@ -816,7 +823,7 @@ e <- round(ajustar_pearson_iv(na.omit(baselIII.12m.stress[,'daily.vol',drop=FALS
 
 estimation.results <- cbind(a,b,c,d,e)
   colnames(estimation.results) <- c("todos","Ri=3","Ri=2","Ri=1","BIII")
-
+  
 # OOS ----
 # FORECAST OOS
 # carga los objetos pre-procesados.
@@ -846,25 +853,25 @@ sim.flat <- empirical.simulation(data = df,  oos.series = NULL, n.sim = 5000, t 
 # quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.025)
 # quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.001)
 
-x.higher <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.50)
-x.lower <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.50)
-x.flat <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.50)
-x.stress <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.50)
+x.higher <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.50)/100-1
+x.lower <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.50)/100-1
+x.flat <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.50)/100-1
+x.stress <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.50)/100-1
 
-higher.q05 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.05)
-lower.q05 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.05)
-flat.q05 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.05)
-stress.q05 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.05)
+higher.q05 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.05)/100-1
+lower.q05 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.05)/100-1
+flat.q05 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.05)/100-1
+stress.q05 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.05)/100-1
 
-higher.q025 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.025)
-lower.q025 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.025)
-flat.q025 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.025)
-stress.q025 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.025)
+higher.q025 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.025)/100-1
+lower.q025 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.025)/100-1
+flat.q025 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.025)/100-1
+stress.q025 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.025)/100-1
 
-higher.q01 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.01)
-lower.q01 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.01)
-flat.q01 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.01)
-stress.q01 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.01)
+higher.q01 <- quantile(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),])),0.01)/100-1
+lower.q01 <- quantile(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),])),0.01)/100-1
+flat.q01 <- quantile(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),])),0.01)/100-1
+stress.q01 <- quantile(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),])),0.01)/100-1
 
 # EXTRACT PCENTILES
 # sim.stress[[1]][[1]][,'Q010']
@@ -1000,18 +1007,31 @@ baselIII.stress <- na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][
 
 data.box <- data.frame(lower.rate, unchanged.rate, higher.rate, baselIII.stress)
 
+# transform from index to pct
+sim.stress_250d <- sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),]
+sim.stress_250d <- as.numeric(sim.stress_250d) / 100 -1
+
+sim.higher_250d <- sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),]
+sim.higher_250d <- as.numeric(sim.higher_250d) / 100 -1
+
+sim.flat_250d <- sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),]
+sim.flat_250d <- as.numeric(sim.flat_250d) / 100 -1
+
+sim.lower_250d <- sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),]
+sim.lower_250d <- as.numeric(sim.lower_250d) / 100 -1
+
 # graph-03: CDF simulacion ventana fija OOS
 par(mfrow=c(1,1), mar=c(2,3,3,3))
-plot(ecdf(na.omit(as.numeric(sim.higher[[1]][[1]][nrow(sim.higher[[1]][[1]]),]))),
+plot(ecdf(na.omit(as.numeric(sim.higher_250d))),
      xlab="",
      ylab="Densidad cumulativa",
      ylim=c(0,0.10),
-     xlim=c(40,120),
+     xlim=c(-0.60,0.20),
      main="Estimación VaR ventana fija - por estado R(i)",
      col="red", lwd=1.5)
-lines(ecdf(na.omit(as.numeric(sim.lower[[1]][[1]][nrow(sim.lower[[1]][[1]]),]))), col="forestgreen", lwd=1.5)
-lines(ecdf(na.omit(as.numeric(sim.flat[[1]][[1]][nrow(sim.flat[[1]][[1]]),]))), col="blue", lwd=1.5)
-lines(ecdf(na.omit(as.numeric(sim.stress[[1]][[1]][nrow(sim.stress[[1]][[1]]),]))), col="red4", lwd=1.5)
+lines(ecdf(na.omit(as.numeric(sim.lower_250d))), col="forestgreen", lwd=1.5)
+lines(ecdf(na.omit(as.numeric(sim.flat_250d))), col="blue", lwd=1.5)
+lines(ecdf(na.omit(as.numeric(sim.stress_250d))), col="red4", lwd=1.5)
 abline(h=0.50, col='grey', lty=2, lwd=0.75)
 mtext("Nivel cumulativo esperado en P(T) (inicial P(t) = 100)",  side=3, cex = 0.80)
 mtext("(truncado)",  side=3, adj = 0, cex = 0.80)
@@ -1032,21 +1052,21 @@ points(x = higher.q01, y = 0.01, pch=15, col="red", bg="white", lwd=1)
 points(x = flat.q01, y = 0.01, pch=15, col="blue", bg="white", lwd=1)
 points(x = lower.q01, y = 0.01, pch=15, col="green4", bg="white", lwd=1)
 
-text(x=round(as.numeric(stress.q01),0)-11, y=0.01, labels=paste0(round(as.numeric(stress.q01)-100,1),"%"), pos=4, cex=1, col = "red4")
-text(x=round(as.numeric(stress.q025),0)-10, y=0.025, labels=paste0(round(as.numeric(stress.q025)-100,1),"%"), pos=4, cex=1, col = "red4")
-text(x=round(as.numeric(stress.q05),0)-11, y=0.05, labels=paste0(round(as.numeric(stress.q05)-100,1),"%"), pos=4, cex=1, col = "red4")
+text(x=as.numeric(stress.q01)-0.14, y=0.01, labels=paste0(round(as.numeric(stress.q01)*100,2),"%"), pos=4, cex=1, col = "red4")
+text(x=as.numeric(stress.q025)-0.12, y=0.025, labels=paste0(round(as.numeric(stress.q025)*100,2),"%"), pos=4, cex=1, col = "red4")
+text(x=as.numeric(stress.q05)-0.14, y=0.05, labels=paste0(round(as.numeric(stress.q05)*100,2),"%"), pos=4, cex=1, col = "red4")
 
-text(x=round(as.numeric(higher.q01),0)+1, y=0.01, labels=paste0(round(as.numeric(higher.q01)-100,1),"%"), pos=4, cex=1, col = "red")
-text(x=round(as.numeric(higher.q025),0)+1, y=0.025, labels=paste0(round(as.numeric(higher.q025)-100,1),"%"), pos=4, cex=1, col = "red")
-text(x=round(as.numeric(higher.q05),0)+1, y=0.05, labels=paste0(round(as.numeric(higher.q05)-100,1),"%"), pos=4, cex=1, col = "red")
+text(x=as.numeric(higher.q01)+0.02, y=0.01, labels=paste0(round(as.numeric(higher.q01)*100,2),"%"), pos=4, cex=1, col = "red")
+text(x=as.numeric(higher.q025)+0.01, y=0.025, labels=paste0(round(as.numeric(higher.q025)*100,2),"%"), pos=4, cex=1, col = "red")
+text(x=as.numeric(higher.q05)+0.01, y=0.05, labels=paste0(round(as.numeric(higher.q05)*100,2),"%"), pos=4, cex=1, col = "red")
 
-text(x=round(as.numeric(lower.q01),0)+1, y=0.01, labels=paste0(round(as.numeric(lower.q01),1)-1*100,"%"), pos=4, cex=1, col = "green4")
-text(x=round(as.numeric(lower.q025),0)+1, y=0.025, labels=paste0(round(as.numeric(lower.q025)-100,1),"%"), pos=4, cex=1, col = "green4")
-text(x=round(as.numeric(lower.q05),0)+1, y=0.05, labels=paste0(round(as.numeric(lower.q05)-100,1),"%"), pos=4, cex=1, col = "green4")
+text(x=as.numeric(lower.q01)+0.01, y=0.01, labels=paste0(round(as.numeric(lower.q01)*100,2),"%"), pos=4, cex=1, col = "green4")
+text(x=as.numeric(lower.q025)+0.01, y=0.025, labels=paste0(round(as.numeric(lower.q025)*100,2),"%"), pos=4, cex=1, col = "green4")
+text(x=as.numeric(lower.q05)+0.01, y=0.05, labels=paste0(round(as.numeric(lower.q05)*100,2),"%"), pos=4, cex=1, col = "green4")
 
-text(x=round(as.numeric(flat.q01),0)-11, y=0.01, labels=paste0(round(as.numeric(flat.q01)-100,1),"%"), pos=4, cex=1, col = "blue")
-text(x=round(as.numeric(flat.q025),0)-10, y=0.025, labels=paste0(round(as.numeric(flat.q025)-100,1),"%"), pos=4, cex=1, col = "blue")
-text(x=round(as.numeric(flat.q05),0)-9, y=0.05, labels=paste0(round(as.numeric(flat.q05)-100,1),"%"), pos=4, cex=1, col = "blue")
+text(x=as.numeric(flat.q01)-0.13, y=0.01, labels=paste0(round(as.numeric(flat.q01)*100,2),"%"), pos=4, cex=1, col = "blue")
+text(x=as.numeric(flat.q025)-0.09, y=0.025, labels=paste0(round(as.numeric(flat.q025)*100,2),"%"), pos=4, cex=1, col = "blue")
+text(x=as.numeric(flat.q05)-0.12, y=0.05, labels=paste0(round(as.numeric(flat.q05)*100,2),"%"), pos=4, cex=1, col = "blue")
 
 legend("topleft", legend=c('R(i=3): reducción',
                            'R(i=2): sin cambios',
@@ -1325,31 +1345,36 @@ knitr::kable(fwd.df.summary.stats[[2]], caption="Estadísticas sumarizadas - VaR
 knitr::kable(fwd.df.summary.stats[[3]], caption="Estadísticas sumarizadas - VaR.99") %>%
   kable_styling(latex_options = "HOLD_position")
 # ANEXO-02: LPM-UPM ----
-par(mfrow=c(3,1), mar=c(4,4,4,4), oma=c(0,0,0,0))
 lower.quantiles <- as.data.frame(sim.lower[[1]][[1]][,c('Q010','Q025','Q050','Q950','Q975','Q990')])
 lower.quantiles <- apply(lower.quantiles, MARGIN = 2, FUN = function(x){x-100})
+
+flat.quantiles <- as.data.frame(sim.flat[[1]][[1]][,c('Q010','Q025','Q050','Q950','Q975','Q990')])
+flat.quantiles <- apply(flat.quantiles, MARGIN = 2, FUN = function(x){x-100})
+
+higher.quantiles <- as.data.frame(sim.higher[[1]][[1]][,c('Q010','Q025','Q050','Q950','Q975','Q990')])
+higher.quantiles <- apply(higher.quantiles, MARGIN = 2, FUN = function(x){x-100})
+
+par(mfrow=c(3,1), mar=c(4,4,4,4), oma=c(0,0,0,0))
 plot(lower.quantiles[,'Q990'], lower.quantiles[,'Q010'], 
      ylim = rev(range(lower.quantiles[,'Q010'])),
      type="l", lwd=2, col="green4", xlab="nivel cola derecha (%)", ylab="nivel cola izquierda (%)", main="R(i=3)",
      cex=1.25, cex.axis=1.25, cex.lab=1, cex.main=1.25)
 lines(lower.quantiles[,'Q975'], lower.quantiles[,'Q025'], lwd=2, col="green2")
 lines(lower.quantiles[,'Q950'], lower.quantiles[,'Q050'], lwd=2, col="green")
+legend("topleft", legend = c("[P.010,P.990]","[P.025,P.975]","[P.050,P.950]"), lwd=2,
+       col = c("green4","green2","green"), text.col = c("green4","green2","green"), bty = "n", cex=1, y.intersp = 1.25)
 box(col="grey")
 
-flat.quantiles <- as.data.frame(sim.flat[[1]][[1]][,c('Q010','Q025','Q050','Q950','Q975','Q990')])
-flat.quantiles <- apply(flat.quantiles, MARGIN = 2, FUN = function(x){x-100})
 plot(flat.quantiles[,'Q990'], flat.quantiles[,'Q010'],type="l", 
      ylim = rev(range(flat.quantiles[,'Q010'])),
      col="blue4", lwd=2, xlab="nivel cola derecha (%)", ylab="nivel cola izquierda (%)", main="R(i=2)",
      cex=1.25, cex.axis=1.25, cex.lab=1, cex.main=1.25)
 lines(flat.quantiles[,'Q975'], flat.quantiles[,'Q025'], lwd=2, col="blue2")
 lines(flat.quantiles[,'Q950'], flat.quantiles[,'Q050'], lwd=2, col="blue")
-legend("topleft", legend = c("[P.010,P.990]","[P.025,P.975]","[P.050,P.950]"), lwd=2,
-       col = c("blue4","blue2","blue"), text.col = c("blue4","blue2","blue"), bty = "n", cex=1, y.intersp = 1.25)
+# legend("topleft", legend = c("[P.010,P.990]","[P.025,P.975]","[P.050,P.950]"), lwd=2,
+#        col = c("blue4","blue2","blue"), text.col = c("blue4","blue2","blue"), bty = "n", cex=1, y.intersp = 1.25)
 box(col="grey")
 
-higher.quantiles <- as.data.frame(sim.higher[[1]][[1]][,c('Q010','Q025','Q050','Q950','Q975','Q990')])
-higher.quantiles <- apply(higher.quantiles, MARGIN = 2, FUN = function(x){x-100})
 plot(higher.quantiles[,'Q990'], higher.quantiles[,'Q010'], type="l", 
      ylim = rev(range(higher.quantiles[,'Q010'])),
      col="red4", lwd=2, xlab="nivel cola derecha (%)", ylab="nivel cola izquierda (%)", main="R(i=1)",
@@ -1357,3 +1382,25 @@ plot(higher.quantiles[,'Q990'], higher.quantiles[,'Q010'], type="l",
 lines(higher.quantiles[,'Q975'], higher.quantiles[,'Q025'], lwd=2, col="red2")
 lines(higher.quantiles[,'Q950'],higher.quantiles[,'Q050'], lwd=2, col="red")
 box(col="grey")
+# ANEXO-02: evolucion parametros ----
+
+par(mfrow=c(3,1), mar=c(3,4,3,4), oma=c(0,0,0,0))
+plot(variance.df$lower~variance.df$date, type="l", ylim=c(0,0.20), ylab="std dev anualizada", xlab="", col="green4", main="Desviación estándar")
+  lines(variance.df$sin_cambios~variance.df$date, col="blue", lwd=1.5, lty=1)
+  lines(variance.df$higher~variance.df$date, col="red", lwd=1.5, lty=1)
+  lines(variance.df$BIII.stress~variance.df$date, col="red4", lwd=1.5, lty=1)
+  legend("topleft", legend = c("reducción","sin.cambios","incremento","BIII.stress"), lwd=2, lty=1, col=c("green4","blue","red","red4"), bty="n", y.intersp = 0.8)
+  box(col="grey")
+plot(skew.df$lower~skew.df$date, type="l", ylim=c(-2,2), ylab="skew (sesgo)", xlab="", col="green4", main="Sesgo")
+  lines(skew.df$sin_cambios~skew.df$date, col="blue", lwd=1.5, lty=1)
+  lines(skew.df$higher~skew.df$date, col="red", lwd=1.5, lty=1)
+  lines(skew.df$BIII.stress~skew.df$date, col="red4", lwd=1.5, lty=1)
+  #legend("topleft", legend = c("reducción","sin.cambios","incremento","BIII.stress"), lwd=2, lty=1, col=c("green4","blue","red","red4"), bty="n")
+  box(col="grey")
+plot(kurt.df$lower~kurt.df$date, type="l", ylim=c(0,20), ylab="kurtosis (curtosis)", xlab="", col="green4", main="Curtosis")
+  lines(kurt.df$sin_cambios~kurt.df$date, col="blue", lwd=1.5, lty=1)
+  lines(kurt.df$higher~kurt.df$date, col="red", lwd=1.5, lty=1)
+  lines(kurt.df$BIII.stress~kurt.df$date, col="red4", lwd=1.5, lty=1)
+  #legend("topleft", legend = c("reducción","sin.cambios","incremento","BIII.stress"), lwd=2, lty=1, col=c("green4","blue","red","red4"), bty="n")
+  box(col="grey")
+par(mfrow=c(1,1), mar=c(4,4,4,4))
