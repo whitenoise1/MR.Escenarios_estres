@@ -14,8 +14,8 @@ En este repositorio, se presenta un caso de aplicación de pruebas de estrés en
 * EscenariosEstres_empirico.RData: Contiene los resultados completos del proceso.
 
 # Principales funciones
-empirical.simulation(): Ejecuta la simulación Pearson a partir del 'fit' a la distribución empírica observada en la muestra. Presenta el resultado de la distribución completa.
-empirical.simulation.simple(): La función abreviada ejecuta el mismo proceso que la función completa, excepto que retorna el 'point-estimate' del resultado.
+* empirical.simulation(): Ejecuta la simulación Pearson a partir del 'fit' a la distribución empírica observada en la muestra. Presenta el resultado de la distribución completa.
+* empirical.simulation.simple(): La función abreviada ejecuta el mismo proceso que la función completa, excepto que retorna el 'point-estimate' del resultado.
 
 # Librerias requeridas
 ```{r}
@@ -33,6 +33,5 @@ require(bizdays)
 require(PearsonDS)
 require(fitdistrplus)
 require(kableExtra)
-```
 require(cubature)
 ```
