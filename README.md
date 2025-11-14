@@ -11,7 +11,7 @@ En este repositorio, se presenta un caso de aplicación de pruebas de estrés en
 * empirical_VaR_rollingOOS_p975.csv: Es el resultado de la simulación (VaR 97.5%) walk forward (out-of-sample) presentado.
 * empirical_VaR_rollingOOS_p99.csv: Es el resultado de la simulación (VaR 99%) walk forward (out-of-sample) presentado.
 * MR_EscenariosEstres.R: Código fuente completo.
-* EscenariosEstres_empirico.RData: Contiene los resultados completos del proceso.
+* EscenariosEstres_empirico.RData: Contiene las funciones, el análisis y los resultados completos del proceso.
 
 # Principales funciones
 * **empirical.simulation()**: Ejecuta la simulación Pearson a partir del 'fit' a la distribución empírica observada en la muestra. Presenta el resultado de la distribución completa.
