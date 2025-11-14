@@ -1,5 +1,5 @@
 # MR.Escenarios_estres
-Código fuente investigacion: ["Escenarios de estrés en portafolios de inversiones: Un enfoque empírico"](https://sb.gob.do/publicaciones/publicaciones-tecnicas/escenarios-de-estres-en-portafolios-de-inversiones-un-enfoque-empirico/), (2025).
+Código fuente que replica la investigacion: ["Escenarios de estrés en portafolios de inversiones: Un enfoque empírico"](https://sb.gob.do/publicaciones/publicaciones-tecnicas/escenarios-de-estres-en-portafolios-de-inversiones-un-enfoque-empirico/), (2025).
 
 Palabras clave: portafolio de inversiones, riesgos financieros, prueba de estrés, simulación de Monte-Carlo.
 Clasificación JEL: G00, G10, G17, G20, G21.
@@ -14,8 +14,8 @@ En este repositorio, se presenta un caso de aplicación de pruebas de estrés en
 * EscenariosEstres_empirico.RData: Contiene los resultados completos del proceso.
 
 # Principales funciones
-* empirical.simulation(): Ejecuta la simulación Pearson a partir del 'fit' a la distribución empírica observada en la muestra. Presenta el resultado de la distribución completa.
-* empirical.simulation.simple(): La función abreviada ejecuta el mismo proceso que la función completa, excepto que retorna el 'point-estimate' del resultado.
+* **empirical.simulation()**: Ejecuta la simulación Pearson a partir del 'fit' a la distribución empírica observada en la muestra. Presenta el resultado de la distribución completa.
+* **empirical.simulation.simple()**: La función abreviada ejecuta el mismo proceso que la función completa, excepto que retorna el 'point-estimate' del resultado.
 
 # Librerias requeridas
 ```{r}
