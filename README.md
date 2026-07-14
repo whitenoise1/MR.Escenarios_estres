@@ -21,6 +21,7 @@ En este repositorio se presenta un caso de aplicación de pruebas de estrés en 
 | `duracion_GOBIX_2015-2025.csv` | Serie de duración del GOBIXDR, insumo del análisis de duración presentado en el paper (no es leído por el script principal). |
 | `EscenariosEstres_empirico.RData` | Workspace de R con las funciones, el análisis y los resultados completos del proceso. |
 | `paper_EscenariosEstres_final.pdf` | Versión final del documento publicado. |
+| `refactor/` | Versión modular y limpia del script (`functions.R` + `main.R`), con resultados idénticos por construcción. Ver `refactor/README.md`. |
 
 ## Cómo ejecutar
 
