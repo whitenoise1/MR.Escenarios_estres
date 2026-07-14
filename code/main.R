@@ -12,7 +12,7 @@
 #
 # NOTA: Versión modular de MR_EscenariosEstres.R — ejecutar con el directorio de
 # trabajo en la raíz del repositorio. Las funciones auxiliares se cargan desde
-# refactor/functions.R; el resto del pipeline es idéntico al script original.
+# code/functions.R; el resto del pipeline es idéntico al script original.
 
 # Cargar librerias ----
 require(quantmod)
@@ -68,7 +68,7 @@ T_SIM      <- 250     # horizonte (días) de la simulación de ventana fija
 # Nota: las semillas están fijadas dentro de las funciones (set.seed(1)) y en el
 # ANEXO-01, igual que en el script original.
 
-source("refactor/functions.R")
+source("code/functions.R")
 
 # Descarga GOBIXDR diario ----
 gobix <- read.csv(url(URL_GOBIX)) # descarga
